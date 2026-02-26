@@ -7,15 +7,15 @@ function parseArgument(raw) {
   var out = {};
   if (!raw) return out;
 
-  raw.split("&").forEach(function (pair) {
-    if (!pair) return;
-    var idx = pair.indexOf("=");
-    var key = idx >= 0 ? pair.slice(0, idx) : pair;
-    var value = idx >= 0 ? pair.slice(idx + 1) : "";
-    key = decodeURIComponent(key || "").trim();
-    value = decodeURIComponent(value || "").trim();
-    if (key) out[key] = value;
-  });
+  var nameMatch = raw.match(/(?:^|&)name=([^&]*)/i);
+  var urlMatch = raw.match(/(?:^|&)url=(.*)$/i);
+
+  if (nameMatch) {
+    out.name = decodeURIComponent(nameMatch[1] || "").trim();
+  }
+  if (urlMatch) {
+    out.url = decodeURIComponent(urlMatch[1] || "").trim();
+  }
 
   return out;
 }
@@ -73,20 +73,25 @@ function formatRemaining(bytes) {
 }
 
 function formatExpire(epochSeconds) {
-  if (!epochSeconds || !Number.isFinite(epochSeconds) || epochSeconds <= 0) {
+  if (!epochSeconds || !isFinite(epochSeconds) || epochSeconds <= 0) {
     return "未提供";
   }
 
   var date = new Date(epochSeconds * 1000);
-  if (Number.isNaN(date.getTime())) {
+  if (isNaN(date.getTime())) {
     return "未提供";
   }
 
+  function pad2(n) {
+    n = String(n);
+    return n.length < 2 ? "0" + n : n;
+  }
+
   var y = date.getFullYear();
-  var m = String(date.getMonth() + 1).padStart(2, "0");
-  var d = String(date.getDate()).padStart(2, "0");
-  var hh = String(date.getHours()).padStart(2, "0");
-  var mm = String(date.getMinutes()).padStart(2, "0");
+  var m = pad2(date.getMonth() + 1);
+  var d = pad2(date.getDate());
+  var hh = pad2(date.getHours());
+  var mm = pad2(date.getMinutes());
 
   return y + "-" + m + "-" + d + " " + hh + ":" + mm;
 }
@@ -98,43 +103,48 @@ function doneFailure(name, title, content) {
   });
 }
 
-var args = parseArgument(typeof $argument === "string" ? $argument : "");
-var name = args.name || "订阅";
-var url = args.url || "";
+try {
+  var args = parseArgument(typeof $argument === "string" ? $argument : "");
+  var name = args.name || "订阅";
+  var url = args.url || "";
 
-if (!url) {
-  doneFailure(name, "请求失败", "缺少订阅 URL 参数");
-} else {
-  $httpClient.get(url, function (error, response) {
-    if (error || !response) {
-      doneFailure(name, "请求失败", String(error || "无响应"));
-      return;
-    }
+  if (!url) {
+    doneFailure(name, "请求失败", "缺少订阅 URL 参数");
+  } else {
+    $httpClient.get(url, function (error, response, data) {
+      if (error || !response) {
+        doneFailure(name, "请求失败", String(error || "无响应"));
+        return;
+      }
 
-    var status = response.status || response.statusCode || 0;
-    if (status >= 400) {
-      doneFailure(name, "请求失败", "HTTP " + status);
-      return;
-    }
+      var status = response.status || response.statusCode || 0;
+      if (status >= 400) {
+        doneFailure(name, "请求失败", "HTTP " + status);
+        return;
+      }
 
-    var rawUserInfo = getHeaderCaseInsensitive(response.headers, "subscription-userinfo");
-    if (!rawUserInfo) {
-      doneFailure(name, "数据异常", "未找到 subscription-userinfo");
-      return;
-    }
+      var rawUserInfo = getHeaderCaseInsensitive(response.headers, "subscription-userinfo");
+      if (!rawUserInfo) {
+        doneFailure(name, "数据异常", "未找到 subscription-userinfo");
+        return;
+      }
 
-    var parsed = parseUserInfoHeader(String(rawUserInfo));
-    if (!parsed) {
-      doneFailure(name, "数据异常", "subscription-userinfo 解析失败");
-      return;
-    }
+      var parsed = parseUserInfoHeader(String(rawUserInfo));
+      if (!parsed) {
+        doneFailure(name, "数据异常", "subscription-userinfo 解析失败");
+        return;
+      }
 
-    var used = parsed.upload + parsed.download;
-    var remaining = Math.max(parsed.total - used, 0);
+      var used = parsed.upload + parsed.download;
+      var remaining = Math.max(parsed.total - used, 0);
 
-    $done({
-      title: name + " 剩余 " + formatRemaining(remaining),
-      content: "到期 " + formatExpire(parsed.expire),
+      $done({
+        title: name + " 剩余 " + formatRemaining(remaining),
+        content: "到期 " + formatExpire(parsed.expire),
+        style: "info",
+      });
     });
-  });
+  }
+} catch (e) {
+  doneFailure("订阅", "请求失败", "脚本异常: " + String(e));
 }
