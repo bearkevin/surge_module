@@ -1,22 +1,30 @@
 /*
- * Surge Panel Script: subscription quota parser
- * argument format: name=<panel name>&url=<subscription url>
+ * Panel output style aligned with common Surge scripts:
+ * $done({ title, content, icon, "icon-color" })
  */
+
+function safeDecode(value) {
+  try {
+    return decodeURIComponent(value || "");
+  } catch (e) {
+    return value || "";
+  }
+}
 
 function parseArgument(raw) {
   var out = {};
   if (!raw) return out;
-
-  var nameMatch = raw.match(/(?:^|&)name=([^&]*)/i);
-  var urlMatch = raw.match(/(?:^|&)url=(.*)$/i);
-
-  if (nameMatch) {
-    out.name = decodeURIComponent(nameMatch[1] || "").trim();
+  var parts = String(raw).split("&");
+  for (var i = 0; i < parts.length; i += 1) {
+    var item = parts[i];
+    if (!item) continue;
+    var idx = item.indexOf("=");
+    var key = idx >= 0 ? item.slice(0, idx) : item;
+    var value = idx >= 0 ? item.slice(idx + 1) : "";
+    key = safeDecode(key).trim();
+    value = safeDecode(value).trim();
+    if (key) out[key] = value;
   }
-  if (urlMatch) {
-    out.url = decodeURIComponent(urlMatch[1] || "").trim();
-  }
-
   return out;
 }
 
@@ -24,127 +32,172 @@ function getHeaderCaseInsensitive(headers, name) {
   if (!headers || !name) return null;
   var target = String(name).toLowerCase();
   var keys = Object.keys(headers);
-
   for (var i = 0; i < keys.length; i += 1) {
     var key = keys[i];
-    if (String(key).toLowerCase() === target) {
-      return headers[key];
-    }
+    if (String(key).toLowerCase() === target) return headers[key];
   }
-
   return null;
 }
 
 function parseUserInfoHeader(raw) {
   if (!raw || typeof raw !== "string") return null;
+  var pairs = raw.match(/\w+=[\d.eE+-]+/g);
+  if (!pairs || !pairs.length) return null;
 
-  function pickNumber(key) {
-    var pattern = new RegExp(key + "\\s*=\\s*(\\d+)", "i");
-    var match = raw.match(pattern);
-    return match ? Number(match[1]) : null;
+  var info = {};
+  for (var i = 0; i < pairs.length; i += 1) {
+    var kv = pairs[i].split("=");
+    info[kv[0]] = Number(kv[1]);
   }
-
-  var upload = pickNumber("upload");
-  var download = pickNumber("download");
-  var total = pickNumber("total");
-  var expire = pickNumber("expire");
-
-  if (upload === null || download === null || total === null) {
+  if (!isFinite(info.upload) || !isFinite(info.download) || !isFinite(info.total)) {
     return null;
   }
-
-  return {
-    upload: upload,
-    download: download,
-    total: total,
-    expire: expire,
-  };
+  return info;
 }
 
-function formatRemaining(bytes) {
-  var gib = 1024 * 1024 * 1024;
-  var tib = gib * 1024;
-
-  if (bytes >= tib) {
-    return (bytes / tib).toFixed(2) + " TiB";
-  }
-
-  return (bytes / gib).toFixed(2) + " GiB";
+function bytesToSize(bytes) {
+  if (!isFinite(bytes) || bytes <= 0) return "0 B";
+  var k = 1024;
+  var sizes = ["B", "KB", "MB", "GB", "TB", "PB"];
+  var i = Math.floor(Math.log(bytes) / Math.log(k));
+  if (i >= sizes.length) i = sizes.length - 1;
+  return (bytes / Math.pow(k, i)).toFixed(2) + " " + sizes[i];
 }
 
 function formatExpire(epochSeconds) {
-  if (!epochSeconds || !isFinite(epochSeconds) || epochSeconds <= 0) {
-    return "未提供";
-  }
-
+  if (!epochSeconds || !isFinite(epochSeconds) || epochSeconds <= 0) return "未提供";
   var date = new Date(epochSeconds * 1000);
-  if (isNaN(date.getTime())) {
-    return "未提供";
-  }
-
-  function pad2(n) {
-    n = String(n);
-    return n.length < 2 ? "0" + n : n;
-  }
-
+  if (isNaN(date.getTime())) return "未提供";
   var y = date.getFullYear();
-  var m = pad2(date.getMonth() + 1);
-  var d = pad2(date.getDate());
-  var hh = pad2(date.getHours());
-  var mm = pad2(date.getMinutes());
-
+  var m = date.getMonth() + 1;
+  var d = date.getDate();
+  var hh = date.getHours();
+  var mm = date.getMinutes();
+  if (hh < 10) hh = "0" + hh;
+  if (mm < 10) mm = "0" + mm;
   return y + "-" + m + "-" + d + " " + hh + ":" + mm;
 }
 
-function doneFailure(name, title, content) {
+function nowHHMM() {
+  var now = new Date();
+  var hh = now.getHours();
+  var mm = now.getMinutes();
+  if (hh < 10) hh = "0" + hh;
+  if (mm < 10) mm = "0" + mm;
+  return hh + ":" + mm;
+}
+
+function donePanel(opts) {
   $done({
-    title: name + " " + title,
-    content: content,
+    title: opts.title,
+    content: opts.content,
+    icon: opts.icon || "airplane.circle",
+    "icon-color": opts.color || "#007aff",
   });
 }
 
-try {
-  var args = parseArgument(typeof $argument === "string" ? $argument : "");
-  var name = args.name || "订阅";
-  var url = args.url || "";
+function doneError(name, message, icon, color) {
+  donePanel({
+    title: name + " | " + nowHHMM(),
+    content: message,
+    icon: icon || "exclamationmark.triangle.fill",
+    color: color || "#ff3b30",
+  });
+}
 
-  if (!url) {
-    doneFailure(name, "请求失败", "缺少订阅 URL 参数");
-  } else {
-    $httpClient.get(url, function (error, response, data) {
+function requestUserInfo(url, method, callback) {
+  var req = {
+    url: url,
+    headers: {
+      "User-Agent": "Quantumult%20X",
+    },
+  };
+
+  var triedGet = false;
+
+  function run(currentMethod) {
+    var fn = $httpClient[currentMethod];
+    if (typeof fn !== "function") {
+      callback("HTTP method unsupported: " + currentMethod, null);
+      return;
+    }
+
+    fn(req, function (error, response) {
       if (error || !response) {
-        doneFailure(name, "请求失败", String(error || "无响应"));
+        if (currentMethod === "head" && !triedGet) {
+          triedGet = true;
+          run("get");
+          return;
+        }
+        callback(String(error || "无响应"), null);
         return;
       }
 
       var status = response.status || response.statusCode || 0;
       if (status >= 400) {
-        doneFailure(name, "请求失败", "HTTP " + status);
+        if (currentMethod === "head" && !triedGet) {
+          triedGet = true;
+          run("get");
+          return;
+        }
+        callback("HTTP " + status, null);
         return;
       }
 
-      var rawUserInfo = getHeaderCaseInsensitive(response.headers, "subscription-userinfo");
-      if (!rawUserInfo) {
-        doneFailure(name, "数据异常", "未找到 subscription-userinfo");
+      var userInfo = getHeaderCaseInsensitive(response.headers, "subscription-userinfo");
+      if (!userInfo && currentMethod === "head" && !triedGet) {
+        triedGet = true;
+        run("get");
         return;
       }
 
-      var parsed = parseUserInfoHeader(String(rawUserInfo));
-      if (!parsed) {
-        doneFailure(name, "数据异常", "subscription-userinfo 解析失败");
+      if (!userInfo) {
+        callback("未找到 subscription-userinfo", null);
         return;
       }
 
-      var used = parsed.upload + parsed.download;
-      var remaining = Math.max(parsed.total - used, 0);
+      callback(null, String(userInfo));
+    });
+  }
 
-      $done({
-        title: name + " 剩余 " + formatRemaining(remaining),
-        content: "到期 " + formatExpire(parsed.expire),
-        style: "info",
+  run(method === "get" ? "get" : "head");
+}
+
+try {
+  var args = parseArgument(typeof $argument === "string" ? $argument : "");
+  var name = args.name || args.title || "订阅";
+  var url = args.url || "";
+  var method = (args.method || "head").toLowerCase();
+  var icon = args.icon || "airplane.circle";
+  var color = args.color || "#007aff";
+
+  if (!url) {
+    doneError(name, "缺少订阅 URL 参数", icon, color);
+  } else {
+    requestUserInfo(url, method, function (err, userInfoRaw) {
+      if (err) {
+        doneError(name, err, icon, color);
+        return;
+      }
+
+      var info = parseUserInfoHeader(userInfoRaw);
+      if (!info) {
+        doneError(name, "subscription-userinfo 解析失败", icon, color);
+        return;
+      }
+
+      var used = info.upload + info.download;
+      var remaining = Math.max(info.total - used, 0);
+      var expireText = formatExpire(info.expire);
+
+      donePanel({
+        title: name + " | " + nowHHMM(),
+        content: "剩余：" + bytesToSize(remaining) + "\n到期：" + expireText,
+        icon: icon,
+        color: color,
       });
     });
   }
 } catch (e) {
-  doneFailure("订阅", "请求失败", "脚本异常: " + String(e));
+  doneError("订阅", "脚本异常: " + String(e));
 }

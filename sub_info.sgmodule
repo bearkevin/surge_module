@@ -8,5 +8,5 @@ nx_quota = type=generic,script-path=https://raw.githubusercontent.com/bearkevin/
 wc_quota = type=generic,script-path=https://raw.githubusercontent.com/bearkevin/surge_module/main/scripts/subscription_panel.js,timeout=10,argument=name=WCloud&url=%@
 
 [Panel]
-Nexitally = title="Nexitally",content="Loading...",style=info,script-name=nx_quota,update-interval=1
-WCloud = title="WCloud",content="Loading...",style=info,script-name=wc_quota,update-interval=1
+Nexitally = script-name=nx_quota,update-interval=600
+WCloud = script-name=wc_quota,update-interval=600
