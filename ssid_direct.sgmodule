@@ -1,0 +1,9 @@
+#!name = SSID_Direct
+#!desc = Use DIRECT rule when connecting to the specified Wi-Fi
+#!category = Bear
+
+[Rule]
+SUBNET, SSID:Bear, DIRECT
+SUBNET, SSID:OurHome, DIRECT
+SUBNET, SSID:PC, DIRECT
+SUBNET, SSID:PC_5G, DIRECT
