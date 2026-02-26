@@ -1,11 +1,11 @@
 #!name = NX WC Quota Panel
 #!desc = Show remaining quota and expiration for Nexitally and WCloud subscriptions
 #!category = Bear
-#!arguments=NX.Node,WC.Node
+#!arguments=NX_NODE=https://example.com/nexitally-sub-url&WC_NODE=https://example.com/wcloud-sub-url
 
 [Script]
-nx_quota = type=generic,script-path=https://raw.githubusercontent.com/bearkevin/surge_module/main/scripts/subscription_panel.js,timeout=10,interval=3600,argument=name=Nexitally&url=%@
-wc_quota = type=generic,script-path=https://raw.githubusercontent.com/bearkevin/surge_module/main/scripts/subscription_panel.js,timeout=10,interval=3600,argument=name=WCloud&url=%@
+nx_quota = type=generic,script-path=https://raw.githubusercontent.com/bearkevin/surge_module/main/scripts/subscription_panel.js,timeout=10,interval=3600,argument=name=Nexitally&url=%NX_NODE%
+wc_quota = type=generic,script-path=https://raw.githubusercontent.com/bearkevin/surge_module/main/scripts/subscription_panel.js,timeout=10,interval=3600,argument=name=WCloud&url=%WC_NODE%
 
 [Panel]
 Nexitally = title="Nexitally",content="Tap to refresh",style=info,script-name=nx_quota,update-interval=3600
