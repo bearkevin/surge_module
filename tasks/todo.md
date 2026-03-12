@@ -80,3 +80,32 @@
   - `tasks/lessons.md`
 - 验证方式：运行本地 `node` 仿真，检查 `resetday`、`reset_day`、header `resetday` 的优先级与回退逻辑
 - 结果：6/6 场景通过，当前行为已改为“传参优先，header 回退”，未改动流量、到期日、标题、图标相关逻辑
+
+---
+
+# Task Log - 2026-03-12
+
+## 任务
+调整 `scripts/subscription_panel.js` 的重置剩余天数语义：当 `subscription-userinfo` 中有 `resetday` 时，直接将其作为 `resetDayLeft`；仅在 header 没有有效 `resetday` 时，才使用旧参数 `reset_day` 通过 `getRmainingDays(...)` 计算剩余天数。
+
+## 计划（可检查项）
+- [x] 核对当前脚本中 `resetDayLeft`、`resetday`、`reset_day` 的现状与现网参数名
+- [x] 调整 `resetDayLeft` 赋值逻辑，使 header `resetday` 直接作为剩余天数
+- [x] 保留 header 缺失时对旧参数 `reset_day` 的日期计算回退逻辑
+- [x] 运行针对性验证，覆盖 header 直出、旧参数回退、无效值回退、忽略传入 `resetday` 的场景
+- [x] 更新评审记录
+- [x] 更新 `tasks/lessons.md` 记录本次用户纠正得到的经验
+
+## 执行记录（高层）
+1. 已将顶层流程改为直接计算 `resetDayLeft`，不再先解析统一的 `resetDay`。
+2. 当 header 中存在有效 `resetday` 时，脚本直接显示该值为剩余天数；只有 header 缺失时才回退到 `args["reset_day"]` 做日期换算。
+3. 已移除 `args.resetday` 参与重置剩余天数计算的行为，避免和 header `resetday` 的新语义混淆。
+4. 已用固定日期的本地 `node` + `vm` 仿真验证 6 个场景，覆盖 header 直出、旧参数回退、无效值回退、忽略传入 `resetday`、无重置日隐藏显示。
+
+## 评审
+- 变更文件：
+  - `scripts/subscription_panel.js`
+  - `tasks/todo.md`
+  - `tasks/lessons.md`
+- 验证方式：运行固定日期的本地 `node` 仿真，检查 `resetDayLeft` 在 header 与 `reset_day` 两条分支下的行为
+- 结果：6/6 场景通过；header `resetday` 现在直接显示为剩余天数，`reset_day` 仅在 header 缺失时参与日期计算

@@ -7,8 +7,7 @@ let args = getArgs();
 (async () => {
   let info = await getDataInfo(args.url);
   if (!info) $done();
-  let resetDay = resolveResetDay(info, args);
-  let resetDayLeft = getRmainingDays(resetDay);
+  let resetDayLeft = resolveResetDayLeft(info, args);
 
   let used = info.download + info.upload;
   let total = info.total;
@@ -106,14 +105,22 @@ function getRmainingDays(resetDay) {
   return daysInMonth - today + resetDay;
 }
 
-function resolveResetDay(info, args) {
-  let candidates = [args.resetday, args["reset_day"], info.resetday];
+function resolveResetDayLeft(info, args) {
+  let headerResetDayLeft = parsePositiveInt(info.resetday);
+  if (headerResetDayLeft) {
+    return headerResetDayLeft;
+  }
 
-  for (let value of candidates) {
-    let parsed = parseInt(value, 10);
-    if (Number.isFinite(parsed) && parsed > 0) {
-      return parsed;
-    }
+  let resetDay = parsePositiveInt(args["reset_day"]);
+  if (resetDay) {
+    return getRmainingDays(resetDay);
+  }
+}
+
+function parsePositiveInt(value) {
+  let parsed = parseInt(value, 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
   }
 }
 
