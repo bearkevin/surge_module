@@ -107,7 +107,7 @@ function getRmainingDays(resetDay) {
 }
 
 function resolveResetDay(info, args) {
-  let candidates = [info.resetday, args["reset_day"], args.resetday];
+  let candidates = [args.resetday, args["reset_day"], info.resetday];
 
   for (let value of candidates) {
     let parsed = parseInt(value, 10);

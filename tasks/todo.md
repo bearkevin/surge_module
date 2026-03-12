@@ -53,3 +53,30 @@
   - `tasks/lessons.md`
 - 验证方式：运行本地 `node` 仿真，直接调用 `resolveResetDay(...)` 验证优先级与回退逻辑
 - 结果：5/5 场景通过，未改动流量、到期日、标题、图标相关逻辑
+
+---
+
+# Task Log - 2026-03-12
+
+## 任务
+将 `scripts/subscription_panel.js` 的重置日优先级改为“传参优先，header 回退”：优先使用传入的 `resetday`，其次兼容旧参数 `reset_day`，最后再使用 `subscription-userinfo` 中的 `resetday`。
+
+## 计划（可检查项）
+- [x] 核对当前脚本与现网配置里的 `resetday` / `reset_day` 使用情况
+- [x] 调整 `resolveResetDay(...)` 的候选顺序为 `args.resetday` > `args.reset_day` > `info.resetday`
+- [x] 运行针对性验证，覆盖传参优先、旧参数兼容、header 回退、无效值回退场景
+- [x] 更新评审记录
+- [x] 更新 `tasks/lessons.md` 记录本次用户纠正得到的经验
+
+## 执行记录（高层）
+1. 已确认当前脚本仍是 header 优先，仓库现网配置仍在使用 `reset_day=25`。
+2. 已将最终重置日解析顺序调整为 `args.resetday`、`args.reset_day`、`info.resetday`。
+3. 已用本地 `node` + `vm` 仿真验证 6 个场景，覆盖传参优先、旧参数兼容、header 回退、无效值回退、无重置日隐藏显示。
+
+## 评审
+- 变更文件：
+  - `scripts/subscription_panel.js`
+  - `tasks/todo.md`
+  - `tasks/lessons.md`
+- 验证方式：运行本地 `node` 仿真，检查 `resetday`、`reset_day`、header `resetday` 的优先级与回退逻辑
+- 结果：6/6 场景通过，当前行为已改为“传参优先，header 回退”，未改动流量、到期日、标题、图标相关逻辑
