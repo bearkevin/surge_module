@@ -12,4 +12,4 @@ WCloud=script-name=WCloud_nodes,update-interval=3600
 
 [Script]
 Nexitally_nodes=type=generic,timeout=10,script-path=https://raw.githubusercontent.com/bearkevin/surge_module/main/scripts/subscription_panel.js,script-update-interval=0,argument=url={{{NX_URL}}}&title=Nexitally&icon=externaldrive.fill.badge.icloud&color=#FFB6C1
-WCloud_nodes=type=generic,timeout=10,script-path=https://raw.githubusercontent.com/bearkevin/surge_module/main/scripts/subscription_panel.js,script-update-interval=0,argument=url={{{WC_URL}}}&title=WCloud&icon=cloud.fill&color=#10B981
+WCloud_nodes=type=generic,timeout=10,script-path=https://raw.githubusercontent.com/bearkevin/surge_module/main/scripts/subscription_panel.js,script-update-interval=0,argument=url={{{WC_URL}}}&title=WCloud&restday=25&icon=cloud.fill&color=#10B981
