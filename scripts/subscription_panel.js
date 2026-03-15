@@ -7,7 +7,7 @@ let args = getArgs();
 (async () => {
   let info = await getDataInfo(args.url);
   if (!info) $done();
-  let resetDayLeft = resolveResetDayLeft(info, args);
+  let resetText = resolveResetText(info, args);
 
   let used = info.download + info.upload;
   let total = info.total;
@@ -15,8 +15,8 @@ let args = getArgs();
   let expire = args.expire || info.expire;
   let content = [`剩余：${bytesToSize(remaining)}`];
 
-  if (resetDayLeft) {
-    content.push(`重置：剩余${resetDayLeft}天`);
+  if (resetText) {
+    content.push(`重置：${resetText}`);
   }
   if (expire && expire !== "false") {
     if (/^[\d.]+$/.test(expire)) expire *= 1000;
@@ -106,16 +106,20 @@ function getRmainingDays(resetDay) {
   return daysInMonth - today + resetDay;
 }
 
-function resolveResetDayLeft(info, args) {
+function resolveResetText(info, args) {
+  if (info.resetday === 0) {
+    return "今天";
+  }
+
   let headerResetDayLeft = parsePositiveInt(info.resetday);
   if (headerResetDayLeft) {
-    return headerResetDayLeft;
+    return `剩余${headerResetDayLeft}天`;
   }
 
   let resetDay =
     parsePositiveInt(args["reset_day"]) ?? parsePositiveInt(args.resetday);
   if (resetDay) {
-    return getRmainingDays(resetDay);
+    return `剩余${getRmainingDays(resetDay)}天`;
   }
 }
 

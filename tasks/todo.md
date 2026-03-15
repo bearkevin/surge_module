@@ -165,3 +165,32 @@
   - `tasks/lessons.md`
 - 验证方式：运行本地 `node` + `vm` 仿真，检查 `content` 中重置行在 `info.resetday`、`args.reset_day`、`args.resetday` 三种来源下的输出
 - 结果：header `resetday` 继续优先直出；`reset_day` 与 `resetday` 均可在 header 缺失时正确回退；剩余流量首行保持为 `剩余：...`
+
+---
+
+# Task Log - 2026-03-15
+
+## 任务
+当订阅响应头返回 `resetday=0` 时，将 `scripts/subscription_panel.js` 的重置文案从隐藏改为显示 `重置：今天`。
+
+## 计划（可检查项）
+- [x] 核对当前 `resetday=0` 被隐藏的具体原因
+- [x] 将重置展示逻辑改为返回最终文案，兼容 `今天` 与 `剩余X天` 两种形式
+- [x] 保持剩余流量、到期时间与参数回退逻辑不变
+- [x] 用真实 Nexitally 响应头和本地仿真覆盖 `resetday=0`、`resetday>0`、参数回退场景
+- [x] 更新评审记录
+- [x] 更新 `tasks/lessons.md`
+
+## 执行记录（高层）
+1. 已确认该订阅链接在 `2026-03-15` 实际返回 `subscription-userinfo: ... resetday=0`，脚本此前因只接受正整数而隐藏了重置行。
+2. 已将重置分支改为统一生成展示文本：header `resetday=0` 时返回 `今天`，header 正整数时返回 `剩余X天`，参数回退仍返回 `剩余X天`。
+3. 保持剩余流量首行、到期时间、标题、图标、请求方式与 header 解析逻辑不变。
+4. 已用真实响应头和本地 `node` + `vm` 仿真验证 5 个场景，覆盖 `resetday=0`、header 正整数、`reset_day` 回退、`resetday` 回退、异常流量钳制。
+
+## 评审
+- 变更文件：
+  - `scripts/subscription_panel.js`
+  - `tasks/todo.md`
+  - `tasks/lessons.md`
+- 验证方式：运行本地 `node` + `vm` 仿真，并使用真实 Nexitally 响应头检查 `content` 中重置行输出
+- 结果：真实 Nexitally 链接对应响应头现在输出 `重置：今天`；header 正整数与参数回退场景继续输出 `重置：剩余X天`
