@@ -112,7 +112,8 @@ function resolveResetDayLeft(info, args) {
     return headerResetDayLeft;
   }
 
-  let resetDay = parsePositiveInt(args["reset_day"]);
+  let resetDay =
+    parsePositiveInt(args["reset_day"]) ?? parsePositiveInt(args.resetday);
   if (resetDay) {
     return getRmainingDays(resetDay);
   }

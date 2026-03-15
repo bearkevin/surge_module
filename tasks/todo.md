@@ -136,3 +136,32 @@
   - `tasks/todo.md`
 - 验证方式：运行本地 `node` + `vm` 仿真，检查 `$done().content` 在不同流量输入下的首行输出，以及重置/到期行是否保持不变
 - 结果：正常场景显示正确剩余流量；`total === used` 与 `used > total` 均显示 `剩余：0B`；重置与到期行仍按原条件拼接
+
+---
+
+# Task Log - 2026-03-15
+
+## 任务
+修复 `scripts/subscription_panel.js` 中 Nexitally 重置剩余天数不显示的问题，兼容参数 `resetday` 与 `reset_day` 两种写法，同时保留 header `resetday` 代表“剩余天数”的优先语义。
+
+## 计划（可检查项）
+- [x] 核对当前重置天数来源分支与 Nexitally/WCloud 配置差异
+- [x] 在 header `resetday` 优先前提下，补回参数 `resetday` 的回退兼容
+- [x] 保持剩余流量显示逻辑和其他展示逻辑不变
+- [x] 用本地 `node` + `vm` 仿真验证 header、`reset_day`、`resetday` 三条路径
+- [x] 更新评审记录
+- [x] 更新 `tasks/lessons.md`
+
+## 执行记录（高层）
+1. 已确认当前脚本只会从 `info.resetday` 和 `args["reset_day"]` 读取重置信息，而不会读取 `args.resetday`。
+2. 已将参数回退分支改为 `args["reset_day"]` 优先、`args.resetday` 兼容回退；header `info.resetday` 仍优先并直接表示“剩余天数”。
+3. 保持剩余流量、到期时间、标题、图标、请求方式与响应头解析逻辑不变。
+4. 已用本地 `node` + `vm` 仿真验证 5 个场景，覆盖 header 优先、`reset_day` 回退、`resetday` 回退、无效参数隐藏、与剩余流量共存的回归场景。
+
+## 评审
+- 变更文件：
+  - `scripts/subscription_panel.js`
+  - `tasks/todo.md`
+  - `tasks/lessons.md`
+- 验证方式：运行本地 `node` + `vm` 仿真，检查 `content` 中重置行在 `info.resetday`、`args.reset_day`、`args.resetday` 三种来源下的输出
+- 结果：header `resetday` 继续优先直出；`reset_day` 与 `resetday` 均可在 header 缺失时正确回退；剩余流量首行保持为 `剩余：...`
