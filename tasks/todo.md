@@ -109,3 +109,30 @@
   - `tasks/lessons.md`
 - 验证方式：运行固定日期的本地 `node` 仿真，检查 `resetDayLeft` 在 header 与 `reset_day` 两条分支下的行为
 - 结果：6/6 场景通过；header `resetday` 现在直接显示为剩余天数，`reset_day` 仅在 header 缺失时参与日期计算
+
+---
+
+# Task Log - 2026-03-15
+
+## 任务
+将 `scripts/subscription_panel.js` 返回内容中的“已用流量 | 总流量”改为仅显示“剩余流量”，其值为 `总流量 - 已用流量`，并在异常场景下最低显示 `0B`。
+
+## 计划（可检查项）
+- [x] 确认当前首行流量字符串的拼接方式与参与字段
+- [x] 将首行流量计算改为 `remaining = max(total - used, 0)`
+- [x] 保持重置天数、到期时间、标题、图标和请求逻辑不变
+- [x] 用本地 `node` + `vm` 仿真验证正常、边界、异常和回归场景
+- [x] 更新评审记录
+
+## 执行记录（高层）
+1. 已确认当前首行由 `info.download + info.upload` 与 `info.total` 组成 `用量：已用 | 总量`。
+2. 已将首行调整为 `剩余：...`，并新增 `Math.max(total - used, 0)` 避免异常数据产生负数展示。
+3. 保持重置、到期、标题、图标、请求方法和响应头解析逻辑不变。
+4. 已使用本地 `node` + `vm` 仿真验证 4 类场景，覆盖正常、边界、异常和回归拼接行为。
+
+## 评审
+- 变更文件：
+  - `scripts/subscription_panel.js`
+  - `tasks/todo.md`
+- 验证方式：运行本地 `node` + `vm` 仿真，检查 `$done().content` 在不同流量输入下的首行输出，以及重置/到期行是否保持不变
+- 结果：正常场景显示正确剩余流量；`total === used` 与 `used > total` 均显示 `剩余：0B`；重置与到期行仍按原条件拼接
