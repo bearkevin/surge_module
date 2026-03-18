@@ -16,9 +16,16 @@ let args = getArgs();
   let content = [];
 
   if (total > 0) {
-    let percentage = Math.round(remaining / total * 100);
+    let rawPct = remaining / total * 100;
+    let percentage = Math.round(rawPct);
     let filled = Math.round(percentage / (100 / 12));
-    let bar = "■".repeat(filled) + "□".repeat(12 - filled);
+    let bar;
+    if (rawPct < 99.5) {
+      filled = Math.min(filled, 11);
+      bar = "■".repeat(filled) + "□".repeat(11 - filled) + " ";
+    } else {
+      bar = "■".repeat(filled) + "□".repeat(12 - filled);
+    }
     content.push(`${bar} ${percentage}%`);
   }
   content.push(`剩余：${bytesToSize(remaining)}/${bytesToSize(total)}`);
