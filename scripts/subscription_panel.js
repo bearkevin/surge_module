@@ -17,8 +17,8 @@ let args = getArgs();
 
   if (total > 0) {
     let percentage = Math.round(remaining / total * 100);
-    let filled = Math.round(percentage / 6.25);
-    let bar = "■".repeat(filled) + "□".repeat(16 - filled);
+    let filled = Math.round(percentage / (100 / 12));
+    let bar = "■".repeat(filled) + "□".repeat(12 - filled);
     content.push(`${bar} ${percentage}%`);
   }
 
