@@ -15,6 +15,13 @@ let args = getArgs();
   let expire = args.expire || info.expire;
   let content = [`剩余：${bytesToSize(remaining)}`];
 
+  if (total > 0) {
+    let percentage = Math.round(remaining / total * 100);
+    let filled = Math.round(percentage / 6.25);
+    let bar = "■".repeat(filled) + "□".repeat(16 - filled);
+    content.push(`${bar} ${percentage}%`);
+  }
+
   if (resetText) {
     content.push(`重置：${resetText}`);
   }
