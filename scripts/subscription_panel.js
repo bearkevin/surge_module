@@ -13,7 +13,7 @@ let args = getArgs();
   let total = info.total;
   let remaining = Math.max(total - used, 0);
   let expire = args.expire || info.expire;
-  let content = [`剩余：${bytesToSize(remaining)}/${bytesToSize(total)}`];
+  let content = [];
 
   if (total > 0) {
     let percentage = Math.round(remaining / total * 100);
@@ -21,6 +21,7 @@ let args = getArgs();
     let bar = "■".repeat(filled) + "□".repeat(12 - filled);
     content.push(`${bar} ${percentage}%`);
   }
+  content.push(`剩余：${bytesToSize(remaining)}/${bytesToSize(total)}`);
 
   if (resetText) {
     content.push(`重置：${resetText}`);
