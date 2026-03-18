@@ -22,7 +22,7 @@ let args = getArgs();
     let bar;
     if (rawPct < 99.5) {
       filled = Math.min(filled, 11);
-      bar = "■".repeat(filled) + "□".repeat(11 - filled) + " ";
+      bar = "■".repeat(filled) + "□".repeat(11 - filled) + "□";
     } else {
       bar = "■".repeat(filled) + "□".repeat(12 - filled);
     }
