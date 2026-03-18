@@ -6,7 +6,7 @@ let args = getArgs();
 
 (async () => {
   let info = await getDataInfo(args.url);
-  if (!info) $done();
+  if (!info) return $done();
   let resetText = resolveResetText(info, args);
 
   let used = info.download + info.upload;
@@ -41,8 +41,10 @@ function getArgs() {
   return Object.fromEntries(
     $argument
       .split("&")
-      .map((item) => item.split("="))
-      .map(([k, v]) => [k, decodeURIComponent(v)])
+      .map((item) => {
+        let idx = item.indexOf("=");
+        return [item.slice(0, idx), decodeURIComponent(item.slice(idx + 1))];
+      })
   );
 }
 
@@ -81,14 +83,13 @@ async function getDataInfo(url) {
   }
 
   return Object.fromEntries(
-    data
-      .match(/\w+=[\d.eE+-]+/g)
+    (data.match(/\w+=[\d.eE+-]+/g) || [])
       .map((item) => item.split("="))
       .map(([k, v]) => [k, Number(v)])
   );
 }
 
-function getRmainingDays(resetDay) {
+function getRemainingDays(resetDay) {
   if (!resetDay) return;
 
   let now = new Date();
@@ -119,7 +120,7 @@ function resolveResetText(info, args) {
   let resetDay =
     parsePositiveInt(args["reset_day"]) ?? parsePositiveInt(args.resetday);
   if (resetDay) {
-    return `剩余${getRmainingDays(resetDay)}天`;
+    return `剩余${getRemainingDays(resetDay)}天`;
   }
 }
 
@@ -133,7 +134,7 @@ function parsePositiveInt(value) {
 function bytesToSize(bytes) {
   if (bytes === 0) return "0B";
   let k = 1024;
-  sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+  let sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
   let i = Math.floor(Math.log(bytes) / Math.log(k));
   return (bytes / Math.pow(k, i)).toFixed(2) + " " + sizes[i];
 }
