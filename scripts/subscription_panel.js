@@ -13,7 +13,7 @@ let args = getArgs();
   let total = info.total;
   let remaining = Math.max(total - used, 0);
   let expire = args.expire || info.expire;
-  let content = [`剩余：${bytesToSize(remaining)}`];
+  let content = [`剩余：${bytesToSize(remaining)}/${bytesToSize(total)}`];
 
   if (total > 0) {
     let percentage = Math.round(remaining / total * 100);
