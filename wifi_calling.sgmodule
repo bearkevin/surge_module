@@ -1,0 +1,11 @@
+#!name = Bear Wi-Fi Calling
+#!category = Bear
+#!desc=Enable Wi-Fi Calling through the proxy.
+#!system=ios
+
+[General]
+include-all-networks = true
+include-cellular-services = true
+
+[Rule]
+DOMAIN-SUFFIX,pub.3gppnetwork.org,Automatic
