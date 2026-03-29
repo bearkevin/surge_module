@@ -9,3 +9,4 @@ include-cellular-services = true
 
 [Rule]
 DOMAIN-SUFFIX,pub.3gppnetwork.org,Automatic
+OR,((DEST-PORT,500),(DEST-PORT,4500),(PROTOCOL,UDP)),PROXY
