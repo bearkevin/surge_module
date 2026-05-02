@@ -12,6 +12,6 @@ WCloud=script-name=WCloud_nodes,update-interval=3600
 
 
 [Script]
-DMIT_nodes=type=generic,timeout=10,script-path=https://cdn.jsdelivr.net/gh/bearkevin/surge_module@main/scripts/subscription_panel.js,script-update-interval=0,argument=url={{{BD_URL}}}&title=Bear&reset_day=3&method=get&icon=arrow.trianglehead.counterclockwise.icloud.fill
-Nexitally_nodes=type=generic,timeout=10,script-path=https://cdn.jsdelivr.net/gh/bearkevin/surge_module@main/scripts/subscription_panel.js,script-update-interval=0,argument=url={{{NX_URL}}}&title=Nexitally&icon=key.icloud.fill
-WCloud_nodes=type=generic,timeout=10,script-path=https://cdn.jsdelivr.net/gh/bearkevin/surge_module@main/scripts/subscription_panel.js,script-update-interval=0,argument=url={{{WC_URL}}}&title=WCloud&reset_day=25&icon=checkmark.icloud.fill
+DMIT_nodes=type=generic,timeout=10,script-path=https://cdn.jsdelivr.net/gh/bearkevin/surge_module@main/scripts/subscription_panel.js,script-update-interval=0,argument=url={{{BD_URL}}}&title=Bear&reset_day=3&method=get&icon=pawprint.circle.fill
+Nexitally_nodes=type=generic,timeout=10,script-path=https://cdn.jsdelivr.net/gh/bearkevin/surge_module@main/scripts/subscription_panel.js,script-update-interval=0,argument=url={{{NX_URL}}}&title=Nexitally&icon=n.circle.fill
+WCloud_nodes=type=generic,timeout=10,script-path=https://cdn.jsdelivr.net/gh/bearkevin/surge_module@main/scripts/subscription_panel.js,script-update-interval=0,argument=url={{{WC_URL}}}&title=WCloud&reset_day=25&icon=w.circle.fill
