@@ -1,0 +1,10 @@
+# DMIT
+IP-CIDR,154.17.7.239/32,no-resolve
+# Lightsail SG
+IP-CIDR,54.179.197.152/32,no-resolve
+# Lightsail JP
+IP-CIDR,57.181.85.250/32,no-resolve
+# Lisa SG
+IP-CIDR,163.128.99.141/32,no-resolve
+# Rule Domain
+DOMAIN-SUFFIX,bearxyz.uk
