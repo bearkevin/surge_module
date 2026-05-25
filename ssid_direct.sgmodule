@@ -3,4 +3,5 @@
 #!category = Bear
 
 [Rule]
+# > Proxy SUBNET
 OR,((AND,((SUBNET,ROUTER:192.168.100.252), (SUBNET,SSID:OurHome))), (AND,((SUBNET,ROUTER:192.168.10.252), (SUBNET,SSID:Bear)))),DIRECT
