@@ -1,14 +1,13 @@
 # DMIT
 IP-CIDR,154.17.7.239/32,no-resolve
+IP-CIDR6,2605:52c0:2:4721:5cd8:e8ff:fe61:2f2b/128,no-resolve
 # Lightsail SG
 IP-CIDR,54.179.197.152/32,no-resolve
+IP-CIDR6,2406:da18:77d:3300:e210:7ead:2567:2c85/128,no-resolve
 # Lightsail JP
 IP-CIDR,13.159.106.60/32,no-resolve
+IP-CIDR6,2406:da14:8b9:7e00:b0ef:ba2:2daa:3787/128,no-resolve
 # Lisa SG
 IP-CIDR,163.128.99.141/32,no-resolve
-# IPv6 Servers
-IP-CIDR6,2605:52c0:2:4721:5cd8:e8ff:fe61:2f2b/128,no-resolve
-IP-CIDR6,2406:da18:77d:3300:e210:7ead:2567:2c85/128,no-resolve
-IP-CIDR6,2406:da14:8b9:7e00:b0ef:ba2:2daa:3787/128,no-resolve
 # Rule Domain
 DOMAIN-SUFFIX,bearxyz.uk
