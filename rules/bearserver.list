@@ -8,7 +8,7 @@ IP-CIDR6,2403:18c0:5:543:be24:11ff:fec1:2e71/128,no-resolve
 IP-CIDR,54.179.197.152/32,no-resolve
 IP-CIDR6,2406:da18:77d:3300:e210:7ead:2567:2c85/128,no-resolve
 # Lightsail JP
-IP-CIDR,13.159.106.60/32,no-resolve
+IP-CIDR,18.176.126.17/32,no-resolve
 IP-CIDR6,2406:da14:8b9:7e00:b0ef:ba2:2daa:3787/128,no-resolve
 # Lisa SG
 IP-CIDR,163.128.99.141/32,no-resolve
