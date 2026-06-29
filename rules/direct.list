@@ -1,9 +1,15 @@
+# cloudflare
 DOMAIN,cloudflare-dns.com
+# nexitally
 DOMAIN-SUFFIX,nxonearth.com
+# wcloud
 DOMAIN-SUFFIX,wcloud.me
+# netdisk
 DOMAIN-SUFFIX,cainiu.xyz
 DOMAIN-KEYWORD,pikpak
 DOMAIN-SUFFIX,116pan.xyz
+# wechat
+
 DOMAIN,cn.bing.com
 DOMAIN-SUFFIX,126.com
 DOMAIN-SUFFIX,126.net
