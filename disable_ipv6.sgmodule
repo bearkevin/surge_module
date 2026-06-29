@@ -5,3 +5,6 @@
 [General]
 ipv6 = false
 ipv6-vif = off
+
+[Rule]
+IP-CIDR6,::/0,REJECT,no-resolve
