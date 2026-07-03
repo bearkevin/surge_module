@@ -1,3 +1,5 @@
+#ghfast
+DOMAIN-SUFFIX,gh-proxy.org
 # cloudflare
 DOMAIN,cloudflare-dns.com
 # nexitally
